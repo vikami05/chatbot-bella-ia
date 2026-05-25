@@ -1,115 +1,196 @@
-AI Booking Assistant
-Asistente conversacional para gestionar turnos de un salon de estetica con IA local, backend en Flask y automatizaciones con n8n.
+🤖 AI Booking Assistant
 
-Que resuelve
-Permite reservar, consultar y cancelar turnos desde un chat.
-Detecta intencion del usuario y extrae datos clave (servicio, fecha, hora, email).
-Valida disponibilidad y guarda los turnos en MySQL.
-Dispara un webhook para enviar confirmaciones por email con n8n.
-Tecnologias usadas
-Backend
-Python 3.9+
-Flask
-SQLAlchemy
-MySQL
-Requests (llamadas HTTP a servicios externos)
-IA
-Ollama (modelo local)
-Prompting para clasificacion de intencion y extraccion de entidades
-Frontend
-HTML5
-CSS3
-JavaScript (Vanilla)
-Automatizacion
-n8n
-SMTP Gmail o nodo Gmail OAuth para envio de emails
-Arquitectura (alto nivel)
-El usuario escribe en el chat del frontend.
-Frontend envia el mensaje a POST /api/chat.
-Flask consulta el modulo de IA para entender la intencion (book, check, cancel, etc.).
-El servicio de turnos valida datos y opera sobre MySQL.
-Si se crea una reserva, Flask envia un webhook a n8n.
-n8n procesa el payload y envia email de confirmacion.
-Flujo del bot
-1) Entendimiento
-El bot interpreta lenguaje natural del cliente.
-Detecta la accion pedida y los campos relevantes.
-2) Gestion de contexto
-Si faltan datos (por ejemplo hora o email), el bot los solicita.
-Mantiene una conversacion guiada hasta completar la reserva.
-3) Reglas de negocio
-Verifica horarios disponibles.
-Evita superposiciones de turnos.
-Normaliza formato de fecha/hora.
-4) Confirmacion
-Crea el turno en base de datos.
-Responde al usuario con confirmacion.
-(Opcional) dispara email automatico via n8n.
-Estructura del proyecto
+✨ Asistente conversacional inteligente para gestionar turnos de un salón de estética utilizando IA local, backend en Flask y automatizaciones con n8n.
+
+📌 ¿Qué resuelve?
+
+Este proyecto permite que los clientes puedan:
+
+✅ Reservar turnos
+✅ Consultar disponibilidad
+✅ Cancelar reservas
+✅ Recibir confirmaciones automáticas por email
+
+Todo desde un chat conversacional 💬
+
+El sistema detecta la intención del usuario y extrae automáticamente datos clave como:
+
+🧴 Servicio
+📅 Fecha
+⏰ Hora
+📧 Email
+
+Luego:
+
+valida disponibilidad,
+evita superposición de turnos,
+guarda la información en MySQL,
+y dispara un webhook hacia n8n para enviar emails automáticos 
+
+🛠️ Tecnologías utilizadas
+
+⚙️ Backend
+🐍 Python 3.9+
+🌶️ Flask
+🗄️ SQLAlchemy
+🐬 MySQL
+🌐 Requests (HTTP requests)
+
+🧠 Inteligencia Artificial
+
+🤖 Ollama (modelo local)
+📝 Prompt Engineering
+
+🔍 Clasificación de intención
+
+🧩 Extracción de entidades
+🎨 Frontend
+🌐 HTML5
+🎨 CSS3
+⚡ JavaScript Vanilla
+
+🔄 Automatización
+
+🔗 n8n
+✉️ SMTP Gmail / Gmail OAuth
+
+🏗️ Arquitectura (High Level)
+
+👤 Usuario
+   ↓
+💬 Frontend Chat
+   ↓
+📡 POST /api/chat
+   ↓
+🧠 Módulo IA (Ollama)
+   ↓
+📋 Detección de intención
+   ↓
+🗄️ Servicio de reservas
+   ↓
+🐬 MySQL
+   ↓
+🔗 Webhook n8n
+   ↓
+✉️ Email de confirmación
+🤖 Flujo del Bot
+🧠 Entendimiento
+
+El bot interpreta lenguaje natural y detecta:
+
+intención del usuario (book, check, cancel)
+servicio solicitado
+fecha
+hora
+email
+
+💬 Gestión de contexto
+
+Si faltan datos importantes, el asistente los solicita automáticamente y mantiene una conversación guiada hasta completar la reserva.
+
+📋 Reglas de negocio
+
+El sistema:
+
+✅ Verifica horarios disponibles
+✅ Evita superposición de turnos
+✅ Normaliza fecha y hora
+
+✅ Confirmación
+
+Una vez validada la reserva:
+
+se guarda en MySQL,
+se responde al usuario,
+y opcionalmente se envía un email automático vía n8n.
+📂 Estructura del proyecto
 ai-booking-assistant/
-|- backend/
-|  |- app.py
-|  |- config/
-|  |- models/
-|  |- routes/
-|  |- services/
-|  |- integrations/
-|  |- prompts/
-|  `- n8n/
-|- frontend/
-|  |- index.html
-|  |- css/
-|  `- js/
-`- database/
-Setup rapido
-1. Base de datos
+│
+├── backend/
+│   ├── app.py
+│   ├── config/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── integrations/
+│   └── prompts/
+│
+├── n8n/
+│
+├── frontend/
+│   ├── index.html
+│   ├── css/
+│   └── js/
+│
+└── database/
+
+⚡ Setup rápido
+1️⃣ Crear base de datos
 mysql -u root -p
-CREATE DATABASE booking_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-2. Backend
+
+CREATE DATABASE booking_db
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+2️⃣ Configurar backend
 cd backend
+
 python -m venv venv
-# Windows
+▶️ Windows
 venv\Scripts\activate
+📦 Instalar dependencias
 pip install -r requirements.txt
+📄 Variables de entorno
 copy .env.example .env
-3. Variables de entorno (backend/.env)
+3️⃣ Configurar .env
 MYSQL_PASSWORD=tu_password_mysql
 MYSQL_DATABASE=booking_db
 
 OLLAMA_URL=http://localhost:11434/api/generate
 OLLAMA_MODEL=llama3
 
-# Opcional: webhook de n8n
+# Opcional - webhook n8n
 N8N_WEBHOOK_URL=http://localhost:5678/webhook/booking-created
-4. Levantar servicios
-# backend
+🚀 Levantar servicios
+▶️ Backend
 cd backend
 python app.py
-
-# frontend (otra terminal)
+🌐 Frontend
 cd frontend
 python -m http.server 8000
-Abrir: http://localhost:8000
 
-n8n (email de confirmacion)
-Workflows incluidos:
+Abrir en navegador:
 
-backend/n8n/booking_confirmation_smtp.workflow.json (recomendado)
+http://localhost:8000
+🔄 n8n - Confirmación de emails
+📂 Workflows incluidos
+backend/n8n/booking_confirmation_smtp.workflow.json
+(recomendado)
+
 backend/n8n/booking_confirmation_gmail.workflow.json
-Pasos:
 
-Abrir n8n en http://localhost:5678.
-Importar uno de los workflows.
-Configurar credencial SMTP/Gmail.
-Activar workflow.
-Verificar N8N_WEBHOOK_URL en backend/.env.
-Endpoints principales
-POST /api/chat - procesa mensajes del asistente
-GET /api/bookings?date=YYYY-MM-DD - lista turnos por fecha
-GET /health - health check
-Ejemplo de payload hacia n8n
-Actualmente pueden existir dos formatos segun version del backend:
+⚙️ Pasos
+Abrir n8n en:
+http://localhost:5678
+Importar uno de los workflows
+Configurar credencial SMTP/Gmail
 
+Activar workflow ✅
+Verificar:
+N8N_WEBHOOK_URL=http://localhost:5678/webhook/booking-created
+
+🔌 Endpoints principales
+
+💬 Procesar mensajes
+POST /api/chat
+
+📅 Obtener turnos por fecha
+GET /api/bookings?date=YYYY-MM-DD
+
+❤️ Health Check
+GET /health
+
+📨 Ejemplo de payload hacia n8n
+Formato 1
 {
   "event": "booking_created",
   "booking": {
@@ -120,8 +201,7 @@ Actualmente pueden existir dos formatos segun version del backend:
     "booking_time": "10:40"
   }
 }
-o
-
+Formato 2
 {
   "intent": "book",
   "data": {
@@ -132,8 +212,8 @@ o
     "time": "10:30"
   }
 }
-Estado del proyecto
-MVP funcional para demo y validacion de flujo completo: chat -> IA -> reserva -> webhook -> email.
+📌 Estado del proyecto
 
-Licencia
-MIT
+🚧 MVP funcional para demo y validación de flujo completo:
+
+Chat → IA → Reserva → Webhook → Email
