@@ -1,0 +1,290 @@
+{
+  "name": "Booking Confirmation via SMTP",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "booking-created",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "Webhook_BookingCreated",
+      "name": "Webhook Booking Created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.body?.event || $json.event || $json.body?.intent || $json.intent || ''}}",
+              "operation": "regex",
+              "value2": "^(booking_created|book)$"
+            }
+          ]
+        }
+      },
+      "id": "IF_EventIsBookingCreated",
+      "name": "IF Event Is booking_created",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.body?.booking?.client_email || $json.booking?.client_email || $json.body?.data?.client_email || $json.data?.client_email || ''}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "IF_HasClientEmail",
+      "name": "IF Has Client Email",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{$env.SMTP_USER}}",
+        "toEmail": "={{$json.body?.booking?.client_email || $json.booking?.client_email || $json.body?.data?.client_email || $json.data?.client_email || ''}}",
+        "subject": "=Confirmacion de turno - {{$json.body?.booking?.client_name || $json.booking?.client_name || $json.body?.data?.client_name || $json.data?.client_name || 'Cliente'}}",
+        "text": "=Hola {{$json.body?.booking?.client_name || $json.booking?.client_name || $json.body?.data?.client_name || $json.data?.client_name || 'Cliente'}},\n\nTu turno fue confirmado con exito.\n\nDetalle:\n- Servicio: {{$json.body?.booking?.service || $json.booking?.service || $json.body?.data?.service || $json.data?.service || 'N/A'}}\n- Fecha: {{$json.body?.booking?.booking_date || $json.booking?.booking_date || $json.body?.data?.date || $json.data?.date || 'N/A'}}\n- Hora: {{$json.body?.booking?.booking_time || $json.booking?.booking_time || $json.body?.data?.time || $json.data?.time || 'N/A'}}\n\nGracias por elegirnos.",
+        "options": {}
+      },
+      "id": "Email_SendSMTP",
+      "name": "Email Send SMTP",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        -240
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "REPLACE_WITH_SMTP_CREDENTIAL_ID",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ok",
+              "name": "ok",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "reason",
+              "name": "reason",
+              "value": "email_sent",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "Set_ResponseSent",
+      "name": "Set Response Email Sent",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        320,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ok",
+              "name": "ok",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "reason",
+              "name": "reason",
+              "value": "missing_client_email",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "Set_ResponseMissingEmail",
+      "name": "Set Response Missing Email",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        80,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ok",
+              "name": "ok",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "reason",
+              "name": "reason",
+              "value": "ignored_event",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "Set_ResponseIgnoredEvent",
+      "name": "Set Response Ignored Event",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -160,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}",
+        "options": {}
+      },
+      "id": "Respond_To_Webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        -80
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Booking Created": {
+      "main": [
+        [
+          {
+            "node": "IF Event Is booking_created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Event Is booking_created": {
+      "main": [
+        [
+          {
+            "node": "IF Has Client Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Response Ignored Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Has Client Email": {
+      "main": [
+        [
+          {
+            "node": "Email Send SMTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Response Missing Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Send SMTP": {
+      "main": [
+        [
+          {
+            "node": "Set Response Email Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Response Email Sent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Response Missing Email": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Response Ignored Event": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "versionId": "00000000-0000-0000-0000-000000000002",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bella AI - Reservá tu turno</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="logo">💅 Bella AI</div>
+                <div class="status">
+                    <span class="status-dot"></span>
+                    Online
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="chat-container" id="chatContainer">
+            <div class="welcome-message">
+                <div class="bot-avatar">🤖</div>
+                <h2>¡Hola! Soy Bella AI</h2>
+                <p>Estoy acá para ayudarte a reservar tu turno en el salón. ¿En qué puedo ayudarte?</p>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <div class="input-container">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    placeholder="Escribí tu mensaje..."
+                    autocomplete="off"
+                >
+                <button id="sendButton" class="send-button">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="quick-actions" id="quickActions">
+                <button class="quick-btn" data-message="Quiero reservar un turno">📅 Reservar turno</button>
+                <button class="quick-btn" data-message="¿Qué servicios ofrecen?">💇 Ver servicios</button>
+                <button class="quick-btn" data-message="¿Cuáles son los horarios?">🕐 Horarios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div class="loading-indicator" id="loadingIndicator">
+        <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <script src="js/chat.js"></script>
+</body>
+</html>
